@@ -1,4 +1,4 @@
-use super::{Game, RenderObject, Color};
+use super::{Game, Color};
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs, ButtonArgs, ButtonState, Button, Key};
 
@@ -17,8 +17,8 @@ pub struct Snake {
 	color: Color
 }
 
-impl RenderObject for Snake {
-	fn new() -> Self {
+impl Snake {
+	pub fn new() -> Self {
 		Snake {
 			pos_x: 0.0,
 			pos_y: 0.0,
@@ -27,7 +27,7 @@ impl RenderObject for Snake {
 		}
 	}
 
-	fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
+	pub fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
 		let square = graphics::rectangle::square(self.pos_x, self.pos_y, Game::PIXEL_SIZE as f64);
 
 		gl.draw(args.viewport(), |c, gl| {
@@ -37,7 +37,7 @@ impl RenderObject for Snake {
 		});
 	}
 
-	fn update(&mut self, args: &UpdateArgs) {
+	pub fn update(&mut self, args: &UpdateArgs) {
 		if self.direction == Direction::Right {
 			self.pos_x += Game::PIXEL_SIZE as f64;
 		}
@@ -52,7 +52,7 @@ impl RenderObject for Snake {
 		}
 	}
 
-	fn button(&mut self, args: &ButtonArgs) {
+	pub fn button(&mut self, args: &ButtonArgs) {
 		if args.state == ButtonState::Press {
 			match args.button {
 				Button::Keyboard(Key::Right) => self.direction = Direction::Right,

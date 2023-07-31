@@ -28,6 +28,13 @@ impl Color {
 		alpha: 1.0
 	};
 
+	pub const YELLOW: Self = Color {
+		red: 255,
+		green: 255,
+		blue: 0,
+		alpha: 1.0
+	};
+
 	pub fn from_rbg(red: u8, green: u8, blue: u8) -> Self {
 		Color {
 			red,

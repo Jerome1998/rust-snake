@@ -5,6 +5,7 @@ extern crate piston;
 
 mod color;
 mod snake;
+mod food;
 
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::{EventLoop, ButtonEvent, ButtonArgs};
@@ -14,11 +15,13 @@ use piston::window::WindowSettings;
 use color::Color;
 use piston_window::*;
 use snake::Snake;
+use food::Food;
 
 pub struct Game {
   gl: GlGraphics,
   window: PistonWindow,
-  snake: Snake
+  snake: Snake,
+  food: Food
 }
 
 impl Game {
@@ -45,12 +48,13 @@ impl Game {
     Game {
       gl: GlGraphics::new(open_gl_version),
       window,
-      snake: Snake::new()
+      snake: Snake::new(),
+      food: Food::new()
     }
   }
 
   pub fn enter_render_loop(&mut self) {
-    let mut events = Events::new(EventSettings::new().ups(8));
+    let mut events = Events::new(EventSettings::new().ups(4));
     while let Some(e) = events.next(&mut self.window) {
       if let Some(args) = e.render_args() {
         self.render(&args);
@@ -72,21 +76,16 @@ impl Game {
       graphics::clear(Color::BLUE.as_array(), gl);
 
       self.snake.render(gl, &args);
+      self.food.render(gl, &args);
     });
   }
 
   fn update(&mut self, args: &UpdateArgs) {
     self.snake.update(args);
+    self.food.update(args);
   }
 
   fn button(&mut self, args: &ButtonArgs) {
     self.snake.button(args);
   }
-}
-
-pub trait RenderObject {
-  fn new() -> Self where Self: Sized;
-  fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs);
-  fn update(&mut self, args: &UpdateArgs);
-  fn button(&mut self, args: &ButtonArgs);
 }
