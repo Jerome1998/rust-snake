@@ -7,6 +7,20 @@ pub struct Color {
 
 #[allow(dead_code)]
 impl Color {
+	pub const BLACK: Self = Color {
+		red: 0,
+		green: 0,
+		blue: 0,
+		alpha: 1.0
+	};
+
+	pub const WHITE: Self = Color {
+		red: 255,
+		green: 255,
+		blue: 255,
+		alpha: 1.0
+	};
+
 	pub const RED: Self = Color {
 		red: 255,
 		green: 0,

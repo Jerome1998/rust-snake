@@ -29,14 +29,14 @@ impl Food {
 	pub fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
 		let square = graphics::rectangle::square(self.pos_x, self.pos_y, Game::PIXEL_SIZE as f64);
 
+		let color = if self.flash {
+			Color::YELLOW.as_array()
+		} else {
+			self.color.as_array()
+		};
+
 		gl.draw(args.viewport(), |c, gl| {
 			let transform = c.transform;
-
-			let color = if self.flash {
-				Color::YELLOW.as_array()
-			} else {
-				self.color.as_array()
-			};
 
 			graphics::rectangle(color, square, transform, gl);
 		})
