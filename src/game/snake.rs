@@ -17,7 +17,7 @@ impl RenderObject for Snake {
 		}
 	}
 
-	fn render(&self, gl: &mut GlGraphics, args: &RenderArgs) {
+	fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
 		let square = graphics::rectangle::square(self.x, self.y, Game::SQUARE_SIZE);
 
 		gl.draw(args.viewport(), |c, gl| {
@@ -25,5 +25,7 @@ impl RenderObject for Snake {
 
 			graphics::rectangle(self.color.as_array(), square, transform, gl)
 		});
+
+		self.x += Game::SQUARE_SIZE;
 	}
 }

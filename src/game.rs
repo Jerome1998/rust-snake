@@ -6,6 +6,7 @@ extern crate piston;
 mod color;
 mod snake;
 
+use std::cell::RefCell;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
@@ -18,7 +19,7 @@ pub struct Game {
   gl: GlGraphics,
   rotation: f64,
   window: Window,
-  game_objects: Vec<Box<dyn RenderObject>>
+  game_objects: Vec<RefCell<Box<dyn RenderObject>>>
 }
 
 impl Game {
@@ -35,8 +36,8 @@ impl Game {
     // Create a new game and run it.
     let snake = Snake::new();
 
-    let game_objects: Vec<Box<dyn RenderObject>> = vec![
-      Box::new(snake)
+    let game_objects: Vec<RefCell<Box<dyn RenderObject>>> = vec![
+      RefCell::new(Box::new(snake))
     ];
 
     Game {
@@ -66,7 +67,8 @@ impl Game {
       graphics::clear(Color::BLUE.as_array(), gl);
 
       for render_object in self.game_objects.iter() {
-        render_object.render(gl, &args);
+        let mut render_object_mut = render_object.borrow_mut();
+        render_object_mut.render(gl, &args);
       }
     });
   }
@@ -79,5 +81,5 @@ impl Game {
 
 pub trait RenderObject {
   fn new() -> Self where Self: Sized;
-  fn render(&self, gl: &mut GlGraphics, args: &RenderArgs);
+  fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs);
 }
