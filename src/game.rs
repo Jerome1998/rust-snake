@@ -1,4 +1,4 @@
-extern crate glutin_window;
+extern crate piston_window;
 extern crate graphics;
 extern crate opengl_graphics;
 extern crate piston;
@@ -6,49 +6,51 @@ extern crate piston;
 mod color;
 mod snake;
 
-use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
+use piston::{EventLoop, ButtonEvent, ButtonArgs};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 use color::Color;
+use piston_window::*;
 use snake::Snake;
 
 pub struct Game {
   gl: GlGraphics,
-  rotation: f64,
-  window: Window,
-  game_objects: Vec<Box<dyn RenderObject>>
+  window: PistonWindow,
+  snake: Snake
 }
 
 impl Game {
-  pub const SQUARE_SIZE: f64 = 20_f64;
+  pub const PIXEL_SIZE: u32 = 20;
+  const COLS: u32 = 30;
+  const ROWS: u32 = 20;
+
+  const WIDTH: u32 = Game::COLS * Game::PIXEL_SIZE;
+  const HEIGHT: u32 = Game::ROWS * Game::PIXEL_SIZE;
 
   pub fn new(open_gl_version: OpenGL) -> Self {
     // Create a window.
-    let window: Window = WindowSettings::new("Snake", [200, 200])
+    let mut window_settings = WindowSettings::new("Snake", [Game::WIDTH, Game::HEIGHT]);
+    window_settings.set_resizable(false);
+    window_settings.set_decorated(false);
+
+    let window: PistonWindow = window_settings
       .graphics_api(open_gl_version)
       .exit_on_esc(true)
       .build()
       .unwrap();
 
     // Create a new game and run it.
-    let snake = Snake::new();
-
-    let game_objects: Vec<Box<dyn RenderObject>> = vec![
-      Box::new(snake)
-    ];
-
     Game {
       gl: GlGraphics::new(open_gl_version),
-      rotation: 0.0,
       window,
-      game_objects
+      snake: Snake::new()
     }
   }
 
   pub fn enter_render_loop(&mut self) {
-    let mut events = Events::new(EventSettings::new());
+    let mut events = Events::new(EventSettings::new().ups(8));
     while let Some(e) = events.next(&mut self.window) {
       if let Some(args) = e.render_args() {
         self.render(&args);
@@ -56,6 +58,10 @@ impl Game {
 
       if let Some(args) = e.update_args() {
         self.update(&args);
+      }
+
+      if let Some(args) = e.button_args() {
+        self.button(&args);
       }
     }
   }
@@ -65,19 +71,22 @@ impl Game {
       // Clear the screen.
       graphics::clear(Color::BLUE.as_array(), gl);
 
-      for render_object in self.game_objects.iter_mut() {
-        render_object.render(gl, &args);
-      }
+      self.snake.render(gl, &args);
     });
   }
 
   fn update(&mut self, args: &UpdateArgs) {
-    // Rotate 2 radians per second.
-    self.rotation += 2.0 * args.dt;
+    self.snake.update(args);
+  }
+
+  fn button(&mut self, args: &ButtonArgs) {
+    self.snake.button(args);
   }
 }
 
 pub trait RenderObject {
   fn new() -> Self where Self: Sized;
   fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs);
+  fn update(&mut self, args: &UpdateArgs);
+  fn button(&mut self, args: &ButtonArgs);
 }
