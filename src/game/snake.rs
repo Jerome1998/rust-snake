@@ -1,9 +1,10 @@
-use super::{Game, Color};
+use super::{Game, Color, Position};
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs, ButtonArgs, ButtonState, Button, Key};
+use std::collections::LinkedList;
 
 #[derive(PartialEq)]
-pub enum Direction {
+enum Direction {
 	Right,
 	Left,
 	Up,
@@ -11,6 +12,7 @@ pub enum Direction {
 }
 
 pub struct Snake {
+	pub parts: LinkedList<Position>,
 	pos_x: f64,
 	pos_y: f64,
 	direction: Direction,
@@ -23,6 +25,7 @@ impl Snake {
 
 	pub fn new() -> Self {
 		Snake {
+			parts: LinkedList::from([Position { x: 0.0, y: 0.0 }]),
 			pos_x: 0.0,
 			pos_y: 0.0,
 			direction: Direction::Right,
@@ -90,6 +93,10 @@ impl Snake {
 		}
 	}
 
+	pub fn add_point(&mut self) {
+		
+	}
+
 	pub fn button(&mut self, args: &ButtonArgs) {
 		if args.state == ButtonState::Press {
 			match args.button {
@@ -100,5 +107,9 @@ impl Snake {
 				_ => ()
 			}
 		}
+	}
+
+	pub fn get_head_position(&mut self) -> Position {
+		Position { x: self.pos_x, y: self.pos_y }
 	}
 }

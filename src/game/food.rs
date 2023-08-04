@@ -1,13 +1,12 @@
 extern crate rand;
 
-use super::{Game, Color};
+use super::{Game, Color, Position};
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs};
 use rand::Rng;
 
 pub struct Food {
-	pos_x: f64,
-	pos_y: f64,
+	pub position: Position,
 	color: Color,
 	flash: bool
 }
@@ -15,19 +14,22 @@ pub struct Food {
 impl Food {
 	pub fn new() -> Self {
 		let mut rng = rand::thread_rng();
-		let pos_x = (rng.gen_range(0..(Game::ROWS - 1)) * Game::PIXEL_SIZE) as f64;
-		let pos_y = (rng.gen_range(0..(Game::COLS - 1)) * Game::PIXEL_SIZE) as f64;
+		let pos_x = (rng.gen_range(0..Game::COLS) * Game::PIXEL_SIZE) as f64;
+		let pos_y = (rng.gen_range(0..Game::ROWS) * Game::PIXEL_SIZE) as f64;
+		let position = Position {
+			x: pos_x,
+			y: pos_y
+		};
 
 		Food {
-			pos_x,
-			pos_y,
+			position,
 			color: Color::GREEN,
 			flash: false
 		}
 	}
 
 	pub fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
-		let square = graphics::rectangle::square(self.pos_x, self.pos_y, Game::PIXEL_SIZE as f64);
+		let square = graphics::rectangle::square(self.position.x, self.position.y, Game::PIXEL_SIZE as f64);
 
 		let color = if self.flash {
 			Color::YELLOW.as_array()
