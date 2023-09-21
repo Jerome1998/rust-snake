@@ -3,7 +3,6 @@ extern crate rand;
 use super::{Game, Color, Position};
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs};
-use rand::Rng;
 
 pub struct Food {
 	pub position: Position,
@@ -13,16 +12,8 @@ pub struct Food {
 
 impl Food {
 	pub fn new() -> Self {
-		let mut rng = rand::thread_rng();
-		let pos_x = (rng.gen_range(0..Game::COLS) * Game::PIXEL_SIZE) as f64;
-		let pos_y = (rng.gen_range(0..Game::ROWS) * Game::PIXEL_SIZE) as f64;
-		let position = Position {
-			x: pos_x,
-			y: pos_y
-		};
-
 		Food {
-			position,
+			position: Game::get_random_position(),
 			color: Color::GREEN,
 			flash: false
 		}

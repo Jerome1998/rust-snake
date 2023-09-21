@@ -68,7 +68,7 @@ impl Color {
 	}
 
 	pub fn as_array(&self) -> [f32; 4] {
-		let max_u8 = std::u8::MAX;
+		let max_u8 = u8::MAX;
 		[
 			self.red as f32 / max_u8 as f32,
 			self.green as f32 / max_u8 as f32,

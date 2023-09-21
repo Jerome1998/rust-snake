@@ -19,6 +19,7 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 use piston_window::PistonWindow;
+use rand::Rng;
 
 pub struct Game {
   gl: GlGraphics,
@@ -80,6 +81,17 @@ impl Game {
     println!("Score: {}", self.snake.parts.len())
   }
 
+  pub fn get_random_position() -> Position {
+    let mut rng = rand::thread_rng();
+    let pos_x = (rng.gen_range(0..Game::COLS) * Game::PIXEL_SIZE) as f64;
+    let pos_y = (rng.gen_range(0..Game::ROWS) * Game::PIXEL_SIZE) as f64;
+
+    Position {
+      x: pos_x,
+      y: pos_y
+    }
+  }
+
   fn render(&mut self, args: &RenderArgs) {
     self.gl.draw(args.viewport(), |_, gl| {
       // Clear the screen.
@@ -91,7 +103,9 @@ impl Game {
   }
 
   fn update(&mut self, args: &UpdateArgs) {
-    let snake_head = self.snake.get_head_position();
+    let snake_head = self.snake.get_head_position().clone();
+
+    // snake eats
     if snake_head == self.food.position {
       self.snake.add_point();
       self.food = Food::new();
@@ -106,9 +120,25 @@ impl Game {
   }
 
   fn game_over(&mut self) -> bool {
-    let head_position = self.snake.get_head_position();
-    if head_position.x >= Game::WIDTH as f64 || head_position.y >= Game::HEIGHT as f64 
+    let head_position = self.snake.get_head_position().clone();
+
+    // snakes eats itself
+    let tail = self.snake.parts.split_off(1);
+    if tail.iter().any(|position| head_position.eq(position)) {
+      println!("You ate yourself");
+      return true;
+    }
+
+    // max points
+    if self.snake.parts.len() == (Game::ROWS * Game::COLS) as usize {
+      println!("You can't eat any more, you win!");
+      return true;
+    }
+
+    // out of boundaries
+    if head_position.x >= Game::WIDTH as f64 || head_position.y >= Game::HEIGHT as f64
       || head_position.x < 0.0 || head_position.y < 0.0 {
+      println!("You got out of the boundaries");
         return true;
     }
 
