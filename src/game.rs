@@ -123,7 +123,7 @@ impl Game {
     let head_position = self.snake.get_head_position().clone();
 
     // snakes eats itself
-    let tail = self.snake.parts.split_off(1);
+    let tail = self.snake.parts.clone().split_off(1);
     if tail.iter().any(|position| head_position.eq(position)) {
       println!("You ate yourself");
       return true;

@@ -35,13 +35,15 @@ impl Snake {
 	pub fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs) {
 		let mouth = self.get_mouth();
 
+		let squares: Vec<graphics::types::Rectangle> = self.parts
+			.iter()
+			.map(|p| graphics::rectangle::square(p.x, p.y, Game::PIXEL_SIZE as f64))
+			.collect();
+
 		gl.draw(args.viewport(), |c, gl| {
 			let transform = c.transform;
 
-			for part in &self.parts {
-				let square = graphics::rectangle::square(part.x, part.y, Game::PIXEL_SIZE as f64);
-				graphics::rectangle(self.color.as_array(), square, transform, gl);
-			}
+			squares.into_iter().for_each(|square| graphics::rectangle(self.color.as_array(), square, transform, gl));
 			graphics::rectangle(Color::BLACK.as_array(), mouth, transform, gl);
 		});
 	}
@@ -81,27 +83,23 @@ impl Snake {
 	}
 
 	pub fn update(&mut self, args: &UpdateArgs) {
-		let mut new_head = self.parts.front().unwrap().clone();
-		if self.direction == Direction::Right {
-			new_head.x += Game::PIXEL_SIZE as f64;
-		}
-		if self.direction == Direction::Left {
-			new_head.x -= Game::PIXEL_SIZE as f64;
-		}
-		if self.direction == Direction::Up {
-			new_head.y -= Game::PIXEL_SIZE as f64;
-		}
-		if self.direction == Direction::Down {
-			new_head.y += Game::PIXEL_SIZE as f64;
+		let mut new_head: Position = self.get_head_position().clone();
+
+		let pixel_size = Game::PIXEL_SIZE as f64;
+		match self.direction {
+			Direction::Right => new_head.x += pixel_size,
+			Direction::Left => new_head.x -= pixel_size,
+			Direction::Up => new_head.y -= pixel_size,
+			Direction::Down => new_head.y += pixel_size
 		}
 
 		// Bug somehow not working correctly
-		self.parts.push_front(new_head);
-		if !self.new_point {
-			self.parts.pop_back();
-		} else {
+		if self.new_point {
 			 self.new_point = false;
+		} else {
+			self.parts.pop_back();
 		}
+		self.parts.push_front(new_head);
 	}
 
 	pub fn add_point(&mut self) {
